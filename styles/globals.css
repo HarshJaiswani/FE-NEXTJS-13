@@ -1,0 +1,112 @@
+/* Defaults */
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  padding: 0;
+  margin: 0;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Gradients */
+/* .text-blue-grad {
+  background: -webkit-linear-gradient(-70deg, #a2facf 0%, #64acff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: white;
+} */
+/* .text-hashGrad {
+  background-image: url("../public/assets/hash-grad.png");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: 0% 0%;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: rgb(136, 136, 136);
+  font-size: 40px;
+  font-family: "GT Walsheim Bold", sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -1px;
+  white-space: normal;
+  line-height: 1.1;
+  margin: 0px;
+  padding: 0px;
+} */
+
+/* Styles of scrollbar */
+body::-webkit-scrollbar {
+  width: 1.2em;
+}
+body::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
+}
+body::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #091921;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Remove number spin in input */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Remove highlight */
+.highlight-none {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Spinner animation */
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: 1.5s linear infinite spinner;
+}
+
+/* Flex go to styles */
+.flex-center {
+  @apply flex justify-center items-center;
+}
+.flex-start {
+  @apply flex justify-start items-start;
+}
+.flex-end {
+  @apply flex justify-end items-center;
+}
+.flex-between {
+  @apply flex justify-between items-center;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
