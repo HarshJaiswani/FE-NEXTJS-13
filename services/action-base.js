@@ -37,16 +37,16 @@ export const asyncHandler = (
   { validateAdmin = false, validateUser = false, connectDB = true },
 ) => {
   return async (_) => {
+    if (connectDB) {
+      // connect DB
+    }
+    if (validateAdmin) {
+      // check if user is admin if not throw error
+    }
+    if (validateUser) {
+      // check if user is present if not throw error
+    }
     try {
-      if (connectDB) {
-        // connect DB
-      }
-      if (validateAdmin) {
-        // check if user is admin if not throw error
-      }
-      if (validateUser) {
-        // check if user is present if not throw error
-      }
       return await resolver(_);
     } catch (error) {
       // throw error
