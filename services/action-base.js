@@ -6,6 +6,58 @@ import { cookies } from "next/headers";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
+export const ActionResponse = ({
+  status = 204,
+  message = "All went good!",
+  data = {},
+}) => {
+  return {
+    status,
+    message,
+    success: true,
+    data,
+  };
+};
+
+export const ActionError = ({
+  status = 500,
+  message = "Something went wrong!",
+  data = {},
+}) => {
+  return {
+    status,
+    message,
+    success: false,
+    data,
+  };
+};
+
+export const asyncHandler = (
+  resolver,
+  { validateAdmin = false, validateUser = false, connectDB = true },
+) => {
+  return async (_) => {
+    try {
+      if (connectDB) {
+        // connect DB
+      }
+      if (validateAdmin) {
+        // check if user is admin if not throw error
+      }
+      if (validateUser) {
+        // check if user is present if not throw error
+      }
+      return await resolver(_);
+    } catch (error) {
+      // throw error
+      console.log(error);
+      return ActionError({
+        message: "Internal Server Error!"
+      });
+    }
+  };
+};
+
 export const setAccessToken = async (accessToken) => {
   const date = new Date();
   cookies().set("accessToken", accessToken, {
