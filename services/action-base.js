@@ -5,56 +5,27 @@ import { cookies } from "next/headers";
 // lib
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
+// middleware
+import connectDb from "@middleware/connectDB.middleware";
+// models
+import User from "@models/User.model";
 
-export const ActionResponse = ({
-  status = 204,
-  message = "All went good!",
-  data = {},
-}) => {
+export const ActionResponse = ({ message = "All went good!", data = {} }) => {
   return {
-    status,
     message,
     success: true,
-    data,
+    ...data,
   };
 };
 
 export const ActionError = ({
-  status = 500,
   message = "Something went wrong!",
   data = {},
 }) => {
   return {
-    status,
     message,
     success: false,
-    data,
-  };
-};
-
-export const asyncHandler = (
-  resolver,
-  { validateAdmin = false, validateUser = false, connectDB = true },
-) => {
-  return async (_) => {
-    if (connectDB) {
-      // connect DB
-    }
-    if (validateAdmin) {
-      // check if user is admin if not throw error
-    }
-    if (validateUser) {
-      // check if user is present if not throw error
-    }
-    try {
-      return await resolver(_);
-    } catch (error) {
-      // throw error
-      console.log(error);
-      return ActionError({
-        message: "Internal Server Error!"
-      });
-    }
+    ...data,
   };
 };
 
@@ -75,15 +46,27 @@ export const setAdminToken = async (adminToken) => {
 export const deleteAuthCookies = async () => {
   cookies().delete("accessToken");
   cookies().delete("adminToken");
-  return { success: true, message: "Cookies Cleared" };
+  return ActionResponse({ message: "Cookies Cleared" });
+};
+
+export const revokeAccessToken = async () => {
+  cookies().delete("accessToken");
+  return ActionResponse({ message: "Access Token Revoked" });
+};
+
+export const revokeAdminToken = async () => {
+  cookies().delete("adminToken");
+  return ActionResponse({ message: "Admin Token Revoked" });
 };
 
 export const getAccessToken = async () => {
-  return cookies().get("accessToken")?.value;
+  const cookieValue = cookies().get("accessToken")?.value;
+  return cookieValue;
 };
 
 export const getAdminToken = async () => {
-  return cookies().get("adminToken")?.value;
+  const cookieValue = cookies().get("adminToken")?.value;
+  return cookieValue;
 };
 
 export const sendMail = async (to, subject, html) => {
@@ -112,41 +95,110 @@ export const sendMail = async (to, subject, html) => {
       });
     });
 
-    if (!successMail) {
-      return { success: false, message: "Failed to send mail!" };
+    if (!successMail) return ActionError({ message: "Failed to send mail!" });
+
+    return ActionResponse({ message: "Email Sent Successfully!" });
+  } catch (error) {
+    console.log(error);
+    return ActionError({ message: "Something went wrong in sending mail!" });
+  }
+};
+
+export const verifyIsUserAdmin = async () => {
+  const token = await getAdminToken();
+  try {
+    if (!token) return ActionError({ message: "Invader" });
+
+    const data = jwt.verify(token, process.env.SECRET_KEY);
+    if (!data.is_admin) return ActionError({ message: "Invader" });
+
+    return ActionResponse({
+      message: "Hello Admin!",
+      data: { data },
+    });
+  } catch (error) {
+    console.log(error);
+    return ActionError({
+      message: "Something went wrong in validating admin!",
+    });
+  }
+};
+
+export const verifyIsUserAuthorized = async () => {
+  const token = await getAccessToken();
+  try {
+    if (!token) return ActionError({ message: "Invader" });
+
+    const data = jwt.verify(token, process.env.SECRET_KEY);
+
+    const user = await User.findById(data._id);
+    if (!user) return ActionError({ message: "No user found!" });
+
+    return ActionResponse({
+      message: "Go ahead captain!",
+      data: { user },
+    });
+  } catch (error) {
+    console.log(error);
+    return ActionError({ message: "Something went wrong in validating user!" });
+  }
+};
+
+export const checkIsTokenValid = async (token) => {
+  try {
+    if (!token) return ActionError({ message: "Token Absent!" });
+
+    const data = jwt.verify(token, process.env.SECRET_KEY);
+
+    return ActionResponse({ message: "Valid", data: { data } });
+  } catch (error) {
+    console.log(error);
+    return ActionError({ message: "Something went wrong in verifying token!" });
+  }
+};
+
+export const asyncHandler = (
+  resolver,
+  { validateAdmin = false, validateUser = false, connectDB = true },
+) => {
+  return async (_) => {
+    let userData = {};
+    let adminData = {};
+    if (connectDB) {
+      await connectDb();
     }
-
-    return { success: true, message: "Email Sent Successfully!" };
-  } catch (error) {
-    console.log(error);
-    return { success: false, message: "Internal Server Error" };
-  }
+    if (validateAdmin) {
+      const response = await verifyIsUserAdmin();
+      if (!response.success) return response;
+      adminData = response.data;
+    }
+    if (validateUser) {
+      const response = await verifyIsUserAuthorized();
+      if (!response.success) return response;
+      userData = response.user;
+    }
+    try {
+      return await resolver(_, userData, adminData);
+    } catch (error) {
+      console.log(error);
+      return ActionError({
+        message: "Internal Server Error!",
+      });
+    }
+  };
 };
 
-export const checkAdmin = async () => {
-  try {
-    const token = await getAdminToken();
-    if (!token) return { success: false, message: "Invader" };
+export const validateFields = (fields = []) => {
+  if (fields.length === 0)
+    return ActionError({ message: "No Data to validate" });
+  const isError = fields.some((field) => {
+    if (field === null || field === undefined) return true;
+    else if (Array.isArray(field) && field.length === 0) return true;
+    else if (Object.keys(field).length === 0) return true;
+    return false;
+  });
 
-    const data = jwt.verify(token, process.env.SECRET_KEY);
-    if (!data.is_admin) return { success: false, message: "Invader" };
-
-    return { success: true, message: "Hello Admin!" };
-  } catch (error) {
-    console.log(error);
-    return { success: false, message: "Internal Server Error!" };
-  }
-};
-
-export const checkValidJWT = async (token) => {
-  try {
-    if (!token) return { success: false, message: "Token Absent!" };
-
-    const data = jwt.verify(token, process.env.SECRET_KEY);
-
-    return { success: true, message: "Valid", data };
-  } catch (error) {
-    console.log(error);
-    return { success: false, message: "Token Expired!" };
-  }
+  return isError
+    ? ActionError({ message: "Invalid fields!" })
+    : ActionResponse({});
 };
