@@ -6,9 +6,9 @@ import { cookies } from "next/headers";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 // middleware
-import connectDb from "@middleware/connectDB.middleware";
+import connectDb from "@/middleware/connectDB.middleware";
 // models
-import User from "@models/User.model";
+import User from "@/models/User.model";
 
 export const ActionResponse = ({ message = "All went good!", data = {} }) => {
   return {
@@ -33,6 +33,9 @@ export const setAccessToken = async (accessToken) => {
   const date = new Date();
   cookies().set("accessToken", accessToken, {
     expires: date.setDate(date.getDate() + 28),
+    httpOnly: true,
+    secure: true,
+    sameSite: true,
   });
 };
 
@@ -40,6 +43,9 @@ export const setAdminToken = async (adminToken) => {
   let date = new Date();
   cookies().set("adminToken", adminToken, {
     expires: date.setDate(date.getDate() + 7),
+    httpOnly: true,
+    secure: true,
+    sameSite: true,
   });
 };
 
@@ -88,7 +94,7 @@ export const sendMail = async (to, subject, html) => {
 
     const successMail = await new Promise((resolve, reject) => {
       transporter.sendMail(mailOptions, (err, info) => {
-        if (info.response.includes("250")) {
+        if (info?.response.includes("250")) {
           resolve(true);
         }
         reject(err);
@@ -132,7 +138,8 @@ export const verifyIsUserAuthorized = async () => {
     const data = jwt.verify(token, process.env.SECRET_KEY);
 
     const user = await User.findById(data._id);
-    if (!user) return ActionError({ message: "No user found!" });
+    if (!user || user.is_blocked)
+      return ActionError({ message: "No user found!" });
 
     return ActionResponse({
       message: "Go ahead captain!",
@@ -193,8 +200,6 @@ export const validateFields = (fields = []) => {
     return ActionError({ message: "No Data to validate" });
   const isError = fields.some((field) => {
     if (field === null || field === undefined) return true;
-    else if (Array.isArray(field) && field.length === 0) return true;
-    else if (Object.keys(field).length === 0) return true;
     return false;
   });
 

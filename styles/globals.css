@@ -75,6 +75,24 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+:root {
+  --dynamic-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --dynamic-height: 100dvh;
+  }
+}
+
+.h-safeView {
+  height: var(--dynamic-height);
+}
+
+.min-h-safeView {
+  min-height: var(--dynamic-height);
+}
+
 /* Remove highlight */
 .highlight-none {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);

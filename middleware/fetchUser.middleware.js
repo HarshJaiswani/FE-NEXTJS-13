@@ -4,7 +4,7 @@ const fetchUser = (handler) => (req, res) => {
   // use cookies to store and retrive jsonwebtoken
   // get the user from the jwt token and add id and name to req object
   const bearerToken = req.headers["Authorization"];
-if (!bearerToken) {
+  if (!bearerToken) {
     return res
       .status(401)
       .json({ error: "Please authenticate using a valid token" });
@@ -22,7 +22,7 @@ if (!bearerToken) {
       .json({ error: "Please authenticate using a valid token" });
   }
   try {
-    const data = jwt.verify(token, process.env.JWT_SECRET);
+    const data = jwt.verify(token, process.env.SECRET_KEY);
     req.user = data.user;
     handler(req, res);
   } catch (error) {
