@@ -9,15 +9,15 @@ import { HiOutlineHome } from "react-icons/hi";
 
 const Error = () => {
   return (
-    <div className="w-full h-screen">
-      <div className="backdrop-blur-sm w-full h-full flex items-center justify-center flex-col">
+    <div className="h-screen w-full">
+      <div className="flex h-full w-full flex-col items-center justify-center backdrop-blur-sm">
         <BiError className="text-[10rem] text-red-500" />
-        <div className="text-3xl sm:text-4xl my-8 text-gray-500">
-          Some Error Occured!
+        <div className="my-8 text-3xl text-gray-500 sm:text-4xl">
+          Some Error Occurred!
         </div>
         <Link href="/">
-          <button className="px-6 py-2 font-semibold text-green-400 flex items-center justify-center rounded-full bg-white shadow border my-4">
-            <HiOutlineHome className="text-lg mr-2" /> Return Home
+          <button className="my-4 flex items-center justify-center rounded-full border bg-white px-6 py-2 font-semibold text-green-400 shadow">
+            <HiOutlineHome className="mr-2 text-lg" /> Return Home
           </button>
         </Link>
       </div>
