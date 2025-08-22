@@ -8,6 +8,7 @@ export const AppContext = createContext(null);
 
 export default function AppState(props) {
   const router = useRouter();
+  const [user, setUser] = useState(null);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(true);
   const [showCoinModal, setShowCoinModal] = useState(false);
 
@@ -32,6 +33,8 @@ export default function AppState(props) {
   return (
     <AppContext.Provider
       value={{
+        user,
+        setUser,
         toggleExploreCoins,
         showCoinModal,
         msg: "Namaste Dunia!",

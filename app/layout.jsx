@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import { Inter } from "next/font/google";
 // toast
 import { Toaster } from "react-hot-toast";
+import AppState from "../context/AppContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,7 +45,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <Toaster position="bottom-right" reverseOrder={false} />
-        <main>{children}</main>
+        <AppState>{children}</AppState>
       </body>
     </html>
   );
